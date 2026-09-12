@@ -1,9 +1,11 @@
-function Logo() {
+function Logo({ className = "" }) {
     return (
-        <div >
-            Logo
-        </div>
-    )
+        <span
+            className={`select-none text-[19px] font-semibold tracking-tight text-[var(--color-ink)] ${className}`}
+        >
+            mega<span className="text-[var(--color-accent)]">blog</span>
+        </span>
+    );
 }
 
-export default Logo
+export default Logo;

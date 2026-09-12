@@ -1,31 +1,25 @@
-import {useEffect, useState} from 'react'
-import {useSelector} from 'react-redux'
-import {useNavigate} from 'react-router-dom'
+import { useEffect } from "react";
+import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
-export default function Protected({children, authentication = true}) {
-
-    const navigate = useNavigate()
-    const [loader, setLoader] = useState(true)
-    const authStatus = useSelector(state => state.auth.status)
+export default function Protected({ children, authentication = true }) {
+    const navigate = useNavigate();
+    const authStatus = useSelector((state) => state.auth.status);
+    const mismatched = authStatus !== authentication;
 
     useEffect(() => {
-        //TODO: make it more easy to understand
-
-        // if (authStatus ===true){
-        //     navigate("/")
-        // } else if (authStatus === false) {
-        //     navigate("/login")
-        // }
-        
-        //let authValue = authStatus === true ? true : false
-
-        if(authentication && authStatus !== authentication){
-            navigate("/login")
-        } else if(!authentication && authStatus !== authentication){
-            navigate("/")
+        if (mismatched) {
+            navigate(authentication ? "/login" : "/");
         }
-        setLoader(false)
-    }, [authStatus, navigate, authentication])
+    }, [mismatched, authentication, navigate]);
 
-  return loader ? <h1>Loading...</h1> : <>{children}</>
+    if (mismatched) {
+        return (
+            <div className="flex min-h-[50vh] items-center justify-center">
+                <div className="h-6 w-6 animate-spin rounded-full border-2 border-[var(--color-hairline)] border-t-[var(--color-accent)]" />
+            </div>
+        );
+    }
+
+    return <>{children}</>;
 }

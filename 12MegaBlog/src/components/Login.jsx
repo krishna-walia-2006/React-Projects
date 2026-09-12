@@ -1,87 +1,86 @@
-import {useState} from 'react';
-import {Link,useNavigate} from 'react-router-dom';
-import {login as authLogin} from '../store/authSlice';
-import {Button,Input,Logo} from "./index"
-import { useDispatch } from 'react-redux';
-import authService from "../appwrite/auth"
-import {useForm} from "react-hook-form"
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { login as authLogin } from "../store/authSlice";
+import { Button, Input, Logo } from "./index";
+import { useDispatch } from "react-redux";
+import authService from "../appwrite/auth";
+import { useForm } from "react-hook-form";
 
 function Login() {
-    const navigate = useNavigate()
-    const dispatch = useDispatch()
-    const {register,handleSubmit} = useForm()
-    const [error,setError] = useState("")
+    const navigate = useNavigate();
+    const dispatch = useDispatch();
+    const { register, handleSubmit } = useForm();
+    const [error, setError] = useState("");
+    const [submitting, setSubmitting] = useState(false);
 
-    const login = async(data) => {
-        setError("")
-            try {
-                const session = await authService.login(data)
-                if(session) {
-                    const userData = await authService.getCurrentUser()
-                    if(userData) {
-                        dispatch(authLogin(userData))
-                    }
-                    navigate("/")
+    const login = async (data) => {
+        setError("");
+        setSubmitting(true);
+        try {
+            const session = await authService.login(data);
+            if (session) {
+                const userData = await authService.getCurrentUser();
+                if (userData) {
+                    dispatch(authLogin({ userData }));
                 }
-            } catch (error) {
-                setError(error.message)
+                navigate("/");
             }
-    }
+        } catch (error) {
+            setError(error.message);
+        } finally {
+            setSubmitting(false);
+        }
+    };
 
     return (
-        <div
-    className='flex items-center justify-center w-full'
-    >
-        <div className={`mx-auto w-full max-w-lg bg-gray-100 rounded-xl p-10 border border-black/10`}>
-        <div className="mb-2 flex justify-center">
-                    <span className="inline-block w-full max-w-[100px]">
-                        <Logo width="100%" />
-                    </span>
-        </div>
-        <h2 className="text-center text-2xl font-bold leading-tight">Sign in to your account</h2>
-        <p className="mt-2 text-center text-base text-black/60">
-                    Don&apos;t have any account?&nbsp;
-                    <Link
-                        to="/signup"
-                        className="font-medium text-primary transition-all duration-200 hover:underline"
-                    >
-                        Sign Up
+        <div className="flex w-full items-center justify-center px-4">
+            <div className="w-full max-w-sm rounded-3xl border border-[var(--color-hairline)] bg-white p-8 shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
+                <div className="mb-6 flex justify-center">
+                    <Logo />
+                </div>
+                <h1 className="text-center text-[22px] font-semibold tracking-tight">
+                    Sign in
+                </h1>
+                <p className="mt-1.5 text-center text-[14px] text-[var(--color-ink-soft)]">
+                    New here?{" "}
+                    <Link to="/signup" className="font-medium text-[var(--color-accent)]">
+                        Create an account
                     </Link>
-        </p>
-        {error && <p className="text-red-600 mt-8 text-center">{error}</p>}
-        <form onSubmit={handleSubmit(login)} className='mt-8'>
-            <div className='space-y-5'>
-                <Input
-                    label="Email: "
-                    placeholder='Enter your email'
-                    type='email'
-                    {...register("email",{
-                        required: true,
-                        validate: {
-                            matchPatern: (value) => /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(value) ||
-                        "Email address must be a valid address", 
-                        }
-                    })}
-                />
+                </p>
 
-                <Input
-                    label="Password: "
-                    type="password"
-                    placeholder="Enter your password"
-                    {...register("password",{
-                        required: true,
-                    })}
-                />
-                <Button
-                    type='submit'
-                    className='w-full'
-                >Sign In</Button>
+                {error && (
+                    <p className="mt-5 rounded-xl bg-[var(--color-danger)]/8 px-3 py-2 text-center text-[13px] text-[var(--color-danger)]">
+                        {error}
+                    </p>
+                )}
+
+                <form onSubmit={handleSubmit(login)} className="mt-6 space-y-4">
+                    <Input
+                        label="Email"
+                        placeholder="you@example.com"
+                        type="email"
+                        {...register("email", {
+                            required: true,
+                            validate: {
+                                matchPattern: (value) =>
+                                    /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(value) ||
+                                    "Enter a valid email address",
+                            },
+                        })}
+                    />
+                    <Input
+                        label="Password"
+                        type="password"
+                        placeholder="••••••••"
+                        {...register("password", { required: true })}
+                    />
+                    <Button type="submit" className="mt-2 w-full" disabled={submitting}>
+                        {submitting ? "Signing in…" : "Sign in"}
+                    </Button>
+                </form>
             </div>
-
-        </form>
-
         </div>
-    </div>
-    )
+    );
 }
-export default Login
+
+export default Login;

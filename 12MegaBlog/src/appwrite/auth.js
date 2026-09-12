@@ -1,7 +1,7 @@
 import conf from "../conf/conf";
 import { Client, Account, ID } from "appwrite";
 
-export class AuthService { 
+export class AuthService {
     client = new Client();
     account;
 
@@ -14,21 +14,25 @@ export class AuthService {
 
     async createAccount({ email, password, name }) {
         try {
-            const userAccount = await this.account.create(ID.unique(), email, password, name);
+            const userAccount = await this.account.create({
+                userId: ID.unique(),
+                email,
+                password,
+                name,
+            });
             if (userAccount) {
                 return this.login({ email, password });
-            } else {
-                return userAccount;
             }
+            return userAccount;
         } catch (error) {
             console.log("Appwrite service :: createAccount :: error", error);
-            throw error; 
+            throw error;
         }
     }
 
     async login({ email, password }) {
         try {
-            return await this.account.createEmailPasswordSession(email, password);
+            return await this.account.createEmailPasswordSession({ email, password });
         } catch (error) {
             console.log("Appwrite service :: login :: error", error);
             throw error;
@@ -38,9 +42,10 @@ export class AuthService {
     async getCurrentUser() {
         try {
             return await this.account.get();
-        } catch (error) {
-            console.log("Appwrite service :: getCurrentUser :: error", error);
-            return null; 
+        } catch {
+            // Expected when no session exists yet (guest visiting the site) -
+            // fail quietly rather than logging noise on every page load.
+            return null;
         }
     }
 
