@@ -35,7 +35,7 @@ A full-stack blogging platform built with React, Redux Toolkit, and Appwrite. Us
 
 | Post page | Login |
 |---|---|
-| ![Post](./screenshots/post.png) | ![Login](./screenshots/login.png) |
+| ![Post](./screenshots/Post.png) | ![Login](./screenshots/login.png) |
 
 ## Tech stack
 
